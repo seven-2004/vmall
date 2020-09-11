@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			table{
+                width:50%;
+                position:relative;
+                margin:30px auto;
+                border-collapse: collapse;
+                border:1px solid gray;
+            }
+            th{
+                background: yellow;
+                height:2.5em;
+                margin: 0 auto;
+            }
+            tr{
+                height:2.5em;
+                margin: 0 auto;
+                text-align: center;
+            }
+		</style>
+	</head>
+	<body>
+		<table border="1" id="tableA">
+			<tr class="trList">
+				<th>序号</th>
+				<th>商品名称</th>
+				<th>数量</th>
+				<th>单价</th>
+				<th>小计</th>
+				<th>操作</th>
+			</tr>
+			<!-- <tr class="trList">
+				<td></td>
+				<td class="oldName">烤腰子</td>
+				<td>
+					<button type="button">-</button>
+					<span class="goods-num">0</span>
+					<button type="button" id="test">+</button>
+				</td>
+				<td>
+					单价:<span class="goods-price">28</span>
+				</td>
+				<td>
+					小计:<span class="goods-single-price">0</span>
+				</td>
+				<td>
+					操作:<input type="button" value="删除" class="inputa" />
+				</td>
+			</tr>
+			<tr class="trList">
+				<td>0</td>
+				<td class="oldName">烤生蚝</td>
+				<td>
+					<button type="button">-</button>
+					<span class="goods-num">0</span>
+					<button type="button">+</button>
+				</td>
+				<td>
+					单价:<span class="goods-price">18</span>
+				</td>
+				<td>
+					小计:<span class="goods-single-price">0</span>
+				</td>
+				<td>
+					操作:<input type="button" value="删除" class="inputa" />
+				</td>
+			</tr> -->
+			<tr class="trList">
+				<td colspan="6">
+					一共<span id="goods-total-num">0</span>件商品,共计花费<span id="goods-total-price">0</span>元。
+				</td>
+			</tr>
+		</table>
+		<table border="1" id="tableB">
+			<tr>
+				<th>商品名称</th>
+				<th>单价</th>
+				<th>操作</th>
+			</tr>
+			<tr>
+				<td>烤面筋</td>
+				<td>
+					单价:<span class="goods-price-a">88</span>
+				</td>
+				<td>
+					操作:<input type="button" value="增加" class="inputb" />
+				</td>
+			</tr>
+			<tr>
+				<td>烤生蚝</td>
+				<td>
+					单价:<span class="goods-price-a">18</span>
+				</td>
+				<td>
+					操作:<input type="button" value="增加" class="inputb" />
+				</td>
+			</tr>
+			<tr>
+				<td>烤腰子</td>
+				<td>
+					单价:<span class="goods-price-a">28</span>
+				</td>
+				<td>
+					操作:<input type="button" value="增加" class="inputb" />
+				</td>
+			</tr>
+			<tr>
+				<td>烤鸡</td>
+				<td>
+					单价:<span class="goods-price-a">38</span>
+				</td>
+				<td>
+					操作:<input type="button" value="增加" class="inputb" />
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
+<script type="text/javascript">
+	
+	//自运行，若localStorage有内容，则取出渲染页面
+		(function(){
+			if(localStorage.length != 0){
+				let oTableA = document.getElementById("tableA");
+				let last = oTableA.lastElementChild;
+				let olast = last.lastElementChild;
+				//获取localStorage内容
+				let oldArr = JSON.parse(localStorage.arr);
+				//根据localStorage内容长度，动态添加tr
+				for(let i=0;i<oldArr.length;i++){
+					//allPrice为小计
+					let allPrice = oldArr[i].num * oldArr[i].price;
+					let tr = document.createElement("tr");
+					let otr = ` <td></td>
+								<td class="oldName">${oldArr[i].name}</td>
+								<td>
+									<button type="button">-</button>
+									<span class="goods-num">${oldArr[i].num}</span>
+									<button type="button" id="test">+</button>
+								</td>
+								<td>单价：<span class="goods-price">${oldArr[i].price}</span></td>
+								<td>小计：<span class="goods-single-price">${allPrice}</span></td>
+								<td>
+									操作:<input type="button" value="删除" class="inputa" />
+								</td>`;
+					tr.innerHTML = otr;
+					tr.setAttribute("class","trList");
+					last.insertBefore(tr,olast);
+				}
+			}
+		})();
+	
+	class Cart{
+		sumGoodsTotalNum(){
+			let GoodsTotalNum = document.getElementById("goods-total-num");
+			let x = 0;
+			let  oGoodsNum = document.getElementsByClassName("goods-num");
+			 for(let i= 0;i<oGoodsNum.length;i++){
+				 x += Number(oGoodsNum[i].innerHTML);
+			 }
+			 GoodsTotalNum.innerHTML = x;
+		}
+		sumGoodsTotalPrice(){
+			let GoodsTotalPrice = document.getElementById("goods-total-price");
+			let x = 0;
+			let  oGoodsSinglePrice = document.getElementsByClassName("goods-single-price");
+			 for(let i= 0;i<oGoodsSinglePrice.length;i++){
+				 x += Number(oGoodsSinglePrice[i].innerHTML);
+			 }
+			 GoodsTotalPrice.innerHTML = x;
+		}
+		getGoodsSinglePrice(num, price) {
+			return num * price;
+		}
+		addGoods(btn) {
+			//获取num的元素
+			let oGoodsNum = btn.previousElementSibling;
+			//对该元素增加一个1
+			oGoodsNum.innerHTML = Number(oGoodsNum.innerHTML) + 1;
+			//找单价节点
+			let oGoodsPrice = btn.parentNode.nextElementSibling.firstElementChild;
+			//找小计节点
+			let oGoodsSinglePrice = btn.parentNode.nextElementSibling.nextElementSibling.firstElementChild;
+		
+			oGoodsSinglePrice.innerHTML = this.getGoodsSinglePrice(oGoodsNum.innerHTML, oGoodsPrice.innerHTML);
+		
+			this.sumGoodsTotalNum();
+			this.sumGoodsTotalPrice();
+		}
+		minGoods(btn) {
+			//获取num的元素
+			let oGoodsNum = btn.nextElementSibling;			
+			if(oGoodsNum.innerHTML > 0){
+				//对该元素减一
+				oGoodsNum.innerHTML = oGoodsNum.innerHTML - 1;
+				//找单价节点
+				let oGoodsPrice = btn.parentNode.nextElementSibling.firstElementChild;
+				//找小计节点
+				let oGoodsSinglePrice = btn.parentNode.nextElementSibling.nextElementSibling.firstElementChild;
+				
+				oGoodsSinglePrice.innerHTML = this.getGoodsSinglePrice(oGoodsNum.innerHTML, oGoodsPrice.innerHTML);
+				
+				this.sumGoodsTotalNum();
+				this.sumGoodsTotalPrice();
+			}
+		}
+		delGoods(btn) {
+			let oTr = btn.parentNode.parentNode;
+			oTr.remove();
+			this.sumGoodsTotalNum();
+			this.sumGoodsTotalPrice();
+		}
+		eventBind() {
+			let oBtns = document.getElementsByTagName("button");
+			let that = this;
+			for (let i = 0; i < oBtns.length; i++) {
+				if (i % 2) {
+					oBtns[i].onclick = function() {
+						that.addGoods(this);
+						that.orderNumber();
+						that.local();
+					}
+				} else {
+					oBtns[i].onclick = function() {
+						that.minGoods(this);
+						that.orderNumber();
+						that.local();
+					}
+				}
+			}
+		
+			let oDelBtn = document.getElementsByClassName("inputa");
+			for (let i = 0; i < oDelBtn.length; i++) {
+				oDelBtn[i].onclick = function() {
+					that.delGoods(this);
+					that.orderNumber();
+					that.local();
+				}
+			}
+			this.sumGoodsTotalNum();
+			this.sumGoodsTotalPrice();
+			this.orderNumber();
+			this.local();
+		}
+		orderNumber(){
+			let count = 1;
+			let trList = document.getElementsByClassName("trList");
+			if(trList.length > 2){
+				for(let j=1;j<trList.length-1;j++){
+					trList[j].firstElementChild.innerHTML = count;
+					count++;
+				}
+			}
+		}
+		
+		//存localStorage，当有内容时，将菜品的 名称、数量、单价 以json存入。
+		local(){
+			let trList = document.getElementsByClassName("trList");
+			//判断是否有内容
+			if(trList.length > 2){
+				let newArr = [];
+				//遍历内容tr
+				for(let j=1;j<trList.length-1;j++){
+					let obj = {
+						//名称
+						"name": trList[j].firstElementChild.nextElementSibling.innerHTML,
+						//数量
+						"num": trList[j].firstElementChild.nextElementSibling.nextElementSibling.firstElementChild.nextElementSibling.innerHTML,
+						//单价
+						"price":trList[j].firstElementChild.nextElementSibling.nextElementSibling.nextElementSibling.firstElementChild.innerHTML
+					}
+					//添加进数组
+					newArr.push(obj);
+				}
+				//数组转为json存入localStorage
+				localStorage.arr = JSON.stringify(newArr);
+			}else if(trList.length <= 2){	//重置
+				localStorage.clear();
+			}
+		}
+	}
+	
+	let x = new Cart();
+	//x.sumGoodsTotalNum();
+	//x.sumGoodsTotalPrice();
+	x.eventBind();
+	
+	
+	class Menu {
+		constructor(obj){
+		  this.obj = obj;
+		}
+		e(oInputb){
+				let that = this;
+				//console.log("dd");
+				let flag = true;
+				let oTableA = document.getElementById("tableA");
+				let last = oTableA.lastElementChild;
+				let olast = last.lastElementChild;
+				let oGoodsA = oInputb.parentNode.previousElementSibling.previousElementSibling.innerText;
+				let oGoodsPriceA = oInputb.parentNode.previousElementSibling.firstElementChild.innerText;
+				let oOldName = document.getElementsByClassName("oldName")
+					for(let j = 0;j<oOldName.length;j++){
+						if(oGoodsA == oOldName[j].innerText){
+							that.obj.addGoods(oOldName[j].nextElementSibling.lastElementChild);
+							flag = false;
+							break;
+						}
+					}
+					if(flag){
+						let str = `	<td></td>
+									<td class="oldName">${oGoodsA}</td>
+									<td>
+										<button type="button">-</button>
+										<span class="goods-num">1</span>
+										<button type="button" id="test">+</button>
+									</td>
+									<td>单价：<span class="goods-price">${oGoodsPriceA}</span></td>
+									<td>小计：<span class="goods-single-price">${oGoodsPriceA}</span></td>
+									<td>
+										操作:<input type="button" value="删除" class="inputa" />
+									</td>`;
+							let tr = document.createElement("tr");
+							tr.innerHTML = str;
+							// tr.className =   class="trList";
+							tr.setAttribute("class","trList");
+							last.insertBefore(tr,olast);
+					}
+					that.obj.eventBind();
+					flag = true;
+				}
+		eventBindA(){
+			let that = this;
+			let oInputB = document.getElementsByClassName("inputb");
+			for(let i= 0;i<oInputB.length;i++){
+				oInputB[i].onclick = function(){
+					that.e(this);
+				}
+			}
+		}
+	}
+	let y = new Menu(x);
+	y.eventBindA();
+	
+	
+	
+	
+</script>
